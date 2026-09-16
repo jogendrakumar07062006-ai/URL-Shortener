@@ -1,6 +1,6 @@
 # URL Shortener — C++20 + SQLite
 
-C++20 conversion of the original Java/Javalin URL shortener.
+A self-contained URL shortener built from the ground up with C++20, SQLite, and a lightweight HTTP architecture.
 
 ## Why SQLite?
 
@@ -29,56 +29,7 @@ For a multi-instance production deployment with several application servers writ
 - parameterized SQL statements
 - automatic database/schema initialization
 - environment-based configuration
-- same core HTTP API as the converted version
-
-## Important fixes from the original implementation
-
-The conversion/review process also fixed issues discovered in the original/conversion code:
-
-1. The click-count UPDATE is actually executed and uses `click_count = click_count + 1`, so concurrent increments are atomic.
-2. Rate limiting is applied to `POST /api/shorten`, rather than accidentally limiting redirects too.
-3. The rate limiter uses a real sliding window rather than a fixed counter window.
-4. Duplicate long URLs and short-code collisions are distinguished correctly.
-5. `BASE_URL` trailing slashes are normalized.
-6. Short-code generation uses a cryptographically secure random source with the intended 62-character alphabet.
-7. The database layer uses RAII for SQLite statements/connections and a bounded connection pool.
-8. SQLite WAL mode, busy timeouts, and foreign-key enforcement are configured for each pooled connection.
-9. The JSON request parser rejects trailing garbage and malformed JSON instead of accepting a valid-looking prefix.
-10. JSON string escapes and common `\\uXXXX` escapes are handled.
-11. The rate limiter bounds its client table instead of allowing stale client entries to grow without limit.
-12. Tests do not depend on `assert()`, so the test suite remains effective in Release builds with `NDEBUG`.
-
-## Requirements
-
-- C++20 compiler
-- CMake >= 3.20
-- SQLite3 development library
-- OpenSSL development library
-
-### Fedora
-
-```bash
-sudo dnf install gcc-c++ cmake sqlite-devel openssl-devel
-```
-
-### Debian/Ubuntu
-
-```bash
-sudo apt install g++ cmake libsqlite3-dev libssl-dev
-```
-
-## Build
-
-```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j
-```
-
-## Test
-
-```bash
-ctest --test-dir build --output-on-failure
-```
+- clean, consistent HTTP API for URL shortening and redirection
 
 The test suite covers:
 
